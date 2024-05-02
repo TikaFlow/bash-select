@@ -13,6 +13,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 project(bash-sql LANGUAGES CXX VERSION 0.1.0 DESCRIPTION "Using SQL-like languages to process lightweight data in bash."
         HOMEPAGE_URL "https://github.com/TikaFlow/bash-sql")
 
+# 头文件搜索路径
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 # 子目录
 add_subdirectory(util)
 add_subdirectory(process)
@@ -21,5 +24,4 @@ add_subdirectory(process)
 file(GLOB SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 # add executable target
 add_executable(sql ${SRCS})
-target_include_directories(sql PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(sql util process)

@@ -8,5 +8,6 @@
 #include <iostream>
 #include <string>
 #include "getopt_util.h"
+#include "process.h"
 
 #endif //BASH_SQL_MAIN_H
