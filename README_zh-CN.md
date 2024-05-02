@@ -29,5 +29,6 @@ make install
 # 使用方法
 
 ```bash
-$ ll | sql select *
+# 确保使用双引号来包裹query语句以免bash对*或任何字符进行扩展
+$ ll | sql "select *"
 ```

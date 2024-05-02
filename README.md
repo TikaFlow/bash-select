@@ -31,5 +31,6 @@ make install
 # Usage
 
 ```bash
-$ ll | sql select *
+# Ensure using double quotes to wrap query statements to avoid bash expanding * or any characters
+$ ll | sql "select *"
 ```
