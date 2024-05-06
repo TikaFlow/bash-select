@@ -9,11 +9,11 @@ int main(int argc, char *argv[]) {
     ProgramOptions options = parseCommandLine(argc, argv);
 
     // process data
-    std::string data = processData(options);
+    auto data = process_data(options);
 
     // output data - for now, just print it to the console
     // maybe formatted later
-    std::cout << data << std::endl;
+    // std::cout << data << std::endl;
 
     return 0;
 }
