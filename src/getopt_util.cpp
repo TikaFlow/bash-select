@@ -19,7 +19,7 @@ ProgramOptions parseCommandLine(int argc, char *argv[]) {
     bool data = false;
     bool file = false;
 
-    static struct option long_options[] = {
+    static option long_options[] = {
             {"help",      no_argument,       nullptr, 'h'},
             {"version",   no_argument,       nullptr, 'v'},
             {"title",     no_argument,       nullptr, 't'},

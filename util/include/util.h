@@ -7,12 +7,16 @@
 
 #include <string>
 #include <iostream>
+#include "global.h"
 
 enum class MsgType {
     INFO,
     ERROR
 };
 
+std::string ltrim(const std::string& str);
+std::string rtrim(const std::string& str);
+std::string trim(const std::string& str);
 void alert(MsgType type, const std::string &msg);
 void show_info(const std::string &msg);
 void show_error_exit(const std::string &msg);

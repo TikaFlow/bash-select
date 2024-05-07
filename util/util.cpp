@@ -2,7 +2,27 @@
 // Created by tika on 4/21/24.
 //
 
-#include "../include/util.h"
+#include "util.h"
+
+std::string ltrim(const std::string& str) {
+    const size_t start = str.find_first_not_of(" \t\n\r\f\v");
+    if (start != std::string::npos) {
+        return str.substr(start);
+    }
+    return {};
+}
+
+std::string rtrim(const std::string& str) {
+    const size_t end = str.find_last_not_of(" \t\n\r\f\v");
+    if (end != std::string::npos) {
+        return str.substr(0, end + 1);
+    }
+    return {};
+}
+
+std::string trim(const std::string& str) {
+    return rtrim(ltrim(str));
+}
 
 void show_info(const std::string &msg) {
     alert(MsgType::INFO, msg);
