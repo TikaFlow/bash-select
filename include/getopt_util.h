@@ -15,11 +15,11 @@
 // 定义参数结构体
 struct ProgramOptions {
     bool title;
-    std::string data;
-    std::string file;
+    String data;
+    String file;
     char delimiter;
     int columns;
-    std::string query;
+    String query;
 };
 
 // 解析命令行参数

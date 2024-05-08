@@ -4,36 +4,33 @@
 
 #include "getopt_util.h"
 
-void argError(const std::string &error) {
-    show_error_no_exit(error);
-    std::cout << std::endl;
-    show_info("Use -h for help.");
-    exit_on_error();
+void argError(const String &error) {
+    Util::show_error(error + "\nUse -h for help.");
 }
 
 ProgramOptions parseCommandLine(int argc, char *argv[]) {
     ProgramOptions options = {false, "", "", '\0', 0, ""};
 
-    bool help = false;
-    bool version = false;
-    bool data = false;
-    bool file = false;
+    var help = false;
+    var version = false;
+    var data = false;
+    var file = false;
 
     static option long_options[] = {
-            {"help",      no_argument,       nullptr, 'h'},
-            {"version",   no_argument,       nullptr, 'v'},
-            {"title",     no_argument,       nullptr, 't'},
-            {"file",      required_argument, nullptr, 'f'},
-            {"delimiter", required_argument, nullptr, 'd'},
-            {"columns",   required_argument, nullptr, 'c'},
-            {nullptr, 0,                     nullptr, 0} // 数组结尾
+            {"help",      no_argument,       null, 'h'},
+            {"version",   no_argument,       null, 'v'},
+            {"title",     no_argument,       null, 't'},
+            {"file",      required_argument, null, 'f'},
+            {"delimiter", required_argument, null, 'd'},
+            {"columns",   required_argument, null, 'c'},
+            {null, 0,                     null, 0}
     };
 
     // 检查是否有标准输入
     if (isatty(STDIN_FILENO) == 0) {
         data = true;
-        std::string line;
-        while (std::getline(std::cin, line)) {
+        String line;
+        while (std::getline(cin, line)) {
             options.data += line + "\n";
         }
         if (!options.data.empty()) {
@@ -42,7 +39,7 @@ ProgramOptions parseCommandLine(int argc, char *argv[]) {
     }
 
     int c;
-    while ((c = getopt_long(argc, argv, "hvtd:f:c:", long_options, nullptr)) != -1) {
+    while ((c = getopt_long(argc, argv, "hvtd:f:c:", long_options, null)) != -1) {
         switch (c) {
             case 'h':
                 help = true;
@@ -56,7 +53,7 @@ ProgramOptions parseCommandLine(int argc, char *argv[]) {
             case 'f':
                 // 判断文件是否存在
                 if (access(optarg, F_OK)) {
-                    argError("File not found: " + std::string(optarg));
+                    argError("File not found: " + String(optarg));
                 }
                 file = true;
                 options.file = optarg;
@@ -88,8 +85,8 @@ ProgramOptions parseCommandLine(int argc, char *argv[]) {
     if (help || version) {
         if (options.title || !options.data.empty() || !options.file.empty() || options.delimiter != '\0' ||
             options.columns != 0 || !options.query.empty()) {
-            if(help) argError("Help option cannot be used with other options.");
-            if(version) argError("Version option cannot be used with other options.");
+            if (help) argError("Help option cannot be used with other options.");
+            if (version) argError("Version option cannot be used with other options.");
         }
     } else {
         // 检查互斥参数

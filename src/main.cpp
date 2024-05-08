@@ -6,21 +6,26 @@
 
 int main(int argc, char *argv[]) {
     // parse command line options
-    ProgramOptions options = parseCommandLine(argc, argv);
+    val options = parseCommandLine(argc, argv);
 
     // process data
-    auto data = process_data(options);
+    var data = process_data(options);
 
-    // DEBUG - print
-     for (const auto& row : data) {
-         std::cout << "row: ";
-         for (const auto& col : row) {
-             std::cout << col << "\t";
-         }
-         std::cout << std::endl;
-     }
-     std::cout << "====================" << std::endl;
-    // DEBUG - print END
+    // DEBUG
+    for (int i = 0; i < data.size(); ++i) {
+        if (i == 1)
+            cout << "===============================" << endl;
+        if (i == 0)
+            cout << "ID";
+        else
+            cout << i;
+        cout << "\t";
+        for (val &col: data[i]) {
+            cout << col << "\t";
+        }
+        cout << endl;
+    }
+    // DEBUG END
 
     // maybe formatted later
 

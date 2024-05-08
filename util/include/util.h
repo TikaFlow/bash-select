@@ -7,20 +7,23 @@
 
 #include <string>
 #include <iostream>
+#include <regex>
 #include "global.h"
 
-enum class MsgType {
-    INFO,
-    ERROR
-};
+class Util {
+public:
+    static String ltrim(const String &str);
 
-std::string ltrim(const std::string& str);
-std::string rtrim(const std::string& str);
-std::string trim(const std::string& str);
-void alert(MsgType type, const std::string &msg);
-void show_info(const std::string &msg);
-void show_error_exit(const std::string &msg);
-void show_error_no_exit(const std::string &msg);
-void exit_on_error();
+    static String rtrim(const String &str);
+
+    static String trim(const String &str);
+
+    static Vector<String> split_string(const String &query, char delimiter);
+
+    static Vector<String> split_string_by_spaces(const String &input);
+
+    static void show_error(const String &msg);
+
+};
 
 #endif //BASH_SQL_UTIL_H

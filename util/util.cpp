@@ -4,48 +4,52 @@
 
 #include "util.h"
 
-std::string ltrim(const std::string& str) {
-    const size_t start = str.find_first_not_of(" \t\n\r\f\v");
-    if (start != std::string::npos) {
-        return str.substr(start);
+String Util::ltrim(const String &str) {
+    val start = str.find_first_not_of(" \t\n\r\f\v");
+    return start == String::npos ? "" : str.substr(start);
+}
+
+String Util::rtrim(const String &str) {
+    val end = str.find_last_not_of(" \t\n\r\f\v");
+    return end == String::npos ? "" : str.substr(0, end + 1);
+}
+
+String Util::trim(const String &str) {
+    return Util::rtrim(Util::ltrim(str));
+}
+
+
+Vector<String> Util::split_string(const String &query, char delimiter) {
+    Vector<String> res;
+    size_t pos = 0;
+    var found = query.find(delimiter);
+    while (found != String::npos) {
+        res.push_back(query.substr(pos, found - pos));
+        pos = found + 1;
+        found = query.find(delimiter, pos);
     }
-    return {};
+    res.push_back(query.substr(pos));
+    return res;
 }
 
-std::string rtrim(const std::string& str) {
-    const size_t end = str.find_last_not_of(" \t\n\r\f\v");
-    if (end != std::string::npos) {
-        return str.substr(0, end + 1);
+Vector<String> Util::split_string_by_spaces(const String &input) {
+    const std::regex re("\\s+");
+
+    std::sregex_token_iterator it(input.begin(), input.end(), re, -1);
+    Vector<String> tokens;
+
+    for (const std::sregex_token_iterator end; it != end; ++it) {
+        tokens.push_back(it->str());
     }
-    return {};
+
+    tokens.erase(std::remove_if(tokens.begin(), tokens.end(), [](const String &s) {
+        return s.empty();
+    }), tokens.end());
+
+    return tokens;
 }
 
-std::string trim(const std::string& str) {
-    return rtrim(ltrim(str));
-}
-
-void show_info(const std::string &msg) {
-    alert(MsgType::INFO, msg);
-}
-
-void show_error_exit(const std::string &msg) {
-    alert(MsgType::ERROR, msg);
-    exit_on_error();
-}
-
-void show_error_no_exit(const std::string &msg) {
-    alert(MsgType::ERROR, msg);
-}
-
-void exit_on_error() {
-    std::cout << std::endl;
+void Util::show_error(const String &msg) {
+    cerr << "ERROR: " << msg << endl;
     exit(1);
-}
-
-void alert(MsgType type, const std::string &msg) {
-    if (type == MsgType::ERROR) {
-        std::cout << "ERROR: " << msg << std::endl;
-    } else if (type == MsgType::INFO) {
-        std::cout << msg << std::endl;
-    }
 }
