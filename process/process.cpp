@@ -37,7 +37,7 @@ int get_col_count(const ProgramOptions &options, const String &data) {
 }
 
 Vector<String> exec_select(const Vector<String> &title, const Vector<String> &row,
-                                     const String &select) {
+                           const String &select) {
     Vector<String> new_row;
 
     val cols = Util::split_string(select, ',');
@@ -50,7 +50,7 @@ Vector<String> exec_select(const Vector<String> &title, const Vector<String> &ro
         }
         val pos = col.rfind(" as ");
         val old_col = pos == String::npos ? Util::trim(col) : Util::trim(col.substr(0, pos));
-        val idx= std::find(title.begin(), title.end(), old_col);
+        val idx = std::find(title.begin(), title.end(), old_col);
         val new_col = row[std::distance(title.begin(), idx)];
         new_row.push_back(new_col);
     }
@@ -62,7 +62,7 @@ bool exec_where(const Vector<String> &title, const Vector<String> &row, const St
     return true;
 }
 
-Vector<String> handle_title(const Vector<String>& title, const String &select) {
+Vector<String> handle_title(const Vector<String> &title, const String &select) {
     Vector<String> new_title;
 
     val cols = Util::split_string(select, ',');
@@ -78,8 +78,8 @@ Vector<String> handle_title(const Vector<String>& title, const String &select) {
             Util::show_error("Syntax error near '" + col + "'");
         }
         val old_col = pos == String::npos ? Util::trim(col) : Util::trim(col.substr(0, pos));
-        val idx= std::find(title.begin(), title.end(), old_col);
-        if(idx == title.end()){
+        val idx = std::find(title.begin(), title.end(), old_col);
+        if (idx == title.end()) {
             Util::show_error("Column '" + old_col + "' not found");
         }
         val alias = pos == String::npos ? "" : Util::trim(col.substr(pos + 4));
@@ -95,32 +95,42 @@ Vector<String> handle_title(const Vector<String>& title, const String &select) {
 }
 
 Vector<Vector<String>> process_query(const Vector<Vector<String>> &input,
-                                                    const String &query) {
+                                     const String &query) {
     // select xx as x1, xx as x2 where x1='test abc' and x1 is not null order by x1, x2 desc limit 20, 2
-    val wherePos = query.find(" where ");
-    val orderPos = query.find(" order by ");
-    val limitPos = query.find(" limit ");
+    val where_pos = query.find(" where ");
+    val order_pos = query.find(" order by ");
+    val limits_pos = query.find(" limit ");
 
-    val limit = Util::trim(limitPos != String::npos ? query.substr(limitPos + 7) : "");
-    var rest = query.substr(0, limitPos);
+    val limits = Util::trim(limits_pos != String::npos ? query.substr(limits_pos + 7) : "");
+    var offset = 0, limit = 0;
+    if (!limits.empty()) {
+        val offset_pos = limits.find(',');
+        offset = offset_pos != String::npos ? asInt(Util::trim(limits.substr(0, offset_pos))) : 0;
+        limit = asInt(Util::trim(offset_pos != String::npos ? limits.substr(offset_pos + 1) : limits));
+    }
+    var rest = query.substr(0, limits_pos);
 
-    val order = Util::trim(orderPos != String::npos ? rest.substr(orderPos + 10) : "");
-    rest = rest.substr(0, orderPos);
+    val order = Util::trim(order_pos != String::npos ? rest.substr(order_pos + 10) : "");
+    rest = rest.substr(0, order_pos);
 
-    val where = Util::trim(wherePos != String::npos ? rest.substr(wherePos + 7) : "");
-    val select = Util::trim(rest.substr(0, wherePos).substr(7));
+    val where = Util::trim(where_pos != String::npos ? rest.substr(where_pos + 7) : "");
+    val select = Util::trim(rest.substr(0, where_pos).substr(7));
 
     Vector<Vector<String>> output;
     val new_title = handle_title(input[0], select);
     output.push_back(new_title);
-    for (var i = 1; i < input.size(); i++) {
+    for (var i = 1 + offset; i < input.size(); i++) {
         // 1. where 2. select
         if (exec_where(input[0], input[i], where)) {
             var new_row = exec_select(input[0], input[i], select);
             output.push_back(new_row);
+            // limit if no considered order by
+            if (limit > 0 && output.size() >= limit + 1) {
+                break;
+            }
         }
     }
-    // 3. order 4. limit
+    // 3. order by 4. limit
 
     return output;
 }

@@ -9,9 +9,11 @@
 #include <string>
 #include <vector>
 
+// keyword
 #define var auto
 #define val const auto
 
+// object
 #define null nullptr
 #define cin std::cin
 #define cout std::cout
@@ -19,6 +21,10 @@
 #define endl std::endl
 #define flush std::flush
 
+// function
+#define asInt std::stoi
+
+// type
 #define String std::string
 #define Vector std::vector
 
