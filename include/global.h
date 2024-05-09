@@ -8,24 +8,34 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <regex>
 
 // keyword
 #define var auto
 #define val const auto
 
-// object
-#define null nullptr
-#define cin std::cin
-#define cout std::cout
-#define cerr std::cerr
-#define endl std::endl
-#define flush std::flush
+// type
+using String = std::string;
+template<typename T>
+using Vector = std::vector<T>;
+using Regex = std::regex;
 
 // function
-#define asInt std::stoi
+using std::stoi;
+using std::stol;
+using std::stof;
+using std::stod;
+using std::to_string;
+using std::for_each;
+using std::getline;
+using std::endl;
+using std::flush;
 
-// type
-#define String std::string
-#define Vector std::vector
+// object
+using std::cin;
+using std::cout;
+using std::cerr;
+val null = nullptr;
+val npos = String::npos;
 
 #endif //BASH_SQL_GLOBAL_H

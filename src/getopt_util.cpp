@@ -5,7 +5,7 @@
 #include "getopt_util.h"
 
 void argError(const String &error) {
-    Util::show_error(error + "\nUse -h for help.");
+    show_error(error + "\nUse -h for help.");
 }
 
 ProgramOptions parseCommandLine(int argc, char *argv[]) {
@@ -30,7 +30,7 @@ ProgramOptions parseCommandLine(int argc, char *argv[]) {
     if (isatty(STDIN_FILENO) == 0) {
         data = true;
         String line;
-        while (std::getline(cin, line)) {
+        while (getline(cin, line)) {
             options.data += line + "\n";
         }
         if (!options.data.empty()) {
@@ -62,7 +62,7 @@ ProgramOptions parseCommandLine(int argc, char *argv[]) {
                 options.delimiter = optarg[0];
                 break;
             case 'c':
-                options.columns = std::stoi(optarg);
+                options.columns = stoi(optarg);
                 break;
             case '?':
                 argError("Unknown option.");

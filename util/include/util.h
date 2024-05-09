@@ -7,23 +7,22 @@
 
 #include <string>
 #include <iostream>
-#include <regex>
 #include "global.h"
 
-class Util {
-public:
-    static String ltrim(const String &str);
+namespace util {
+    String ltrim(const String &str);
 
-    static String rtrim(const String &str);
+    String rtrim(const String &str);
 
-    static String trim(const String &str);
+    String trim(const String &str);
 
-    static Vector<String> split_string(const String &query, char delimiter);
+    Vector<String> split_string(const String &query, char delimiter);
 
-    static Vector<String> split_string_by_spaces(const String &input);
+    Vector<String> split_string_by_spaces(const String &input);
 
-    static void show_error(const String &msg);
+    void show_error(const String &msg);
+}
 
-};
+using namespace util;
 
 #endif //BASH_SQL_UTIL_H
