@@ -9,7 +9,7 @@ void argError(const String &error) {
 }
 
 ProgramOptions parseCommandLine(int argc, char *argv[]) {
-    ProgramOptions options = {false, "", "", '\0', 0, ""};
+    ProgramOptions options = {false, false, "", "", '\0', 0, ""};
 
     var help = false;
     var version = false;
@@ -20,10 +20,11 @@ ProgramOptions parseCommandLine(int argc, char *argv[]) {
             {"help",      no_argument,       null, 'h'},
             {"version",   no_argument,       null, 'v'},
             {"title",     no_argument,       null, 't'},
+            {"line-no",     no_argument,       null, 'l'},
             {"file",      required_argument, null, 'f'},
             {"delimiter", required_argument, null, 'd'},
             {"columns",   required_argument, null, 'c'},
-            {null, 0,                     null, 0}
+            {null, 0,                        null, 0}
     };
 
     // 检查是否有标准输入
@@ -39,7 +40,7 @@ ProgramOptions parseCommandLine(int argc, char *argv[]) {
     }
 
     int c;
-    while ((c = getopt_long(argc, argv, "hvtd:f:c:", long_options, null)) != -1) {
+    while ((c = getopt_long(argc, argv, "hvtld:f:c:", long_options, null)) != -1) {
         switch (c) {
             case 'h':
                 help = true;
@@ -49,6 +50,9 @@ ProgramOptions parseCommandLine(int argc, char *argv[]) {
                 break;
             case 't':
                 options.title = true;
+                break;
+            case 'l':
+                options.line_no = true;
                 break;
             case 'f':
                 // 判断文件是否存在

@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <regex>
+#include <iomanip>
 
 // keyword
 #define var auto
@@ -29,7 +30,8 @@ using std::to_string;
 using std::for_each;
 using std::getline;
 using std::endl;
-using std::flush;
+using std::setw;
+using std::setfill;
 
 // object
 using std::cin;

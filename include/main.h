@@ -9,5 +9,6 @@
 #include <string>
 #include "getopt_util.h"
 #include "process.h"
+#include "data_out.h"
 
 #endif //BASH_SQL_MAIN_H

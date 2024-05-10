@@ -9,18 +9,13 @@ void prepare_data(const String &data, Vector<Vector<String>> &output, const char
     var rows = split_string(data, '\n');
     for (var &row: rows) {
         var cols = d == 0 ? split_string_by_spaces(row) : split_string(row, d);
-        if (cols.size() <= col_count) {
-            output.push_back(cols);
-            continue;
+        if (cols.size() > col_count) {
+            for (var i = col_count; i < cols.size(); i++) {
+                cols[col_count - 1] += " " + cols[i];
+            }
         }
-        Vector<String> new_row(col_count);
-        for (var i = 0; i < col_count; i++) {
-            new_row[i] = cols[i];
-        }
-        for (var i = col_count; i < cols.size(); i++) {
-            new_row[col_count - 1] += " " + cols[i];
-        }
-        output.push_back(new_row);
+        cols.resize(col_count);
+        output.push_back(cols);
     }
 }
 
@@ -146,7 +141,6 @@ Vector<Vector<String>> process_data(const ProgramOptions &options) {
 
     if (data.empty()) {
         // If input is empty, show error and exit
-        // TODO - Only data-independent functions are available when no input is provided
         show_error("No input data provided.");
     }
 

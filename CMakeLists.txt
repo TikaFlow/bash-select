@@ -20,8 +20,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 add_subdirectory(util)
 add_subdirectory(process)
 
+set(EXE_NAME sql)
 # get all source files
 file(GLOB SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 # add executable target
-add_executable(sql ${SRCS})
-target_link_libraries(sql util process)
+add_executable(${EXE_NAME} ${SRCS})
+target_link_libraries(${EXE_NAME} util process)
