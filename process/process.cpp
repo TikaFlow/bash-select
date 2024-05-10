@@ -54,6 +54,9 @@ Vector<String> exec_select(const Vector<String> &title, const Vector<String> &ro
 
 bool exec_where(const Vector<String> &title, const Vector<String> &row, const String &where) {
     // TODO
+    if(where.empty()){
+        return true;
+    }
     return true;
 }
 
@@ -91,10 +94,14 @@ Vector<String> handle_title(const Vector<String> &title, const String &select) {
 
 Vector<Vector<String>> process_query(const Vector<Vector<String>> &input,
                                      const String &query) {
-    // select xx as x1, xx as x2 where x1='test abc' and x1 is not null order by x1, x2 desc limit 20, 2
-    val where_pos = query.find(" where ");
-    val order_pos = query.find(" order by ");
-    val limits_pos = query.find(" limit ");
+    val where_reg = Regex(" (WHERE|where) ");
+    val order_reg = Regex(" (ORDER|order) (BY|by) ");
+    val limit_reg = Regex(" (LIMIT|limit) ");
+    std::smatch match;
+    using std::regex_search;
+    val where_pos = regex_search(query, match, where_reg)?match.position(0):npos;
+    val order_pos = regex_search(query, match, order_reg)?match.position(0):npos;
+    val limits_pos = regex_search(query, match, limit_reg)?match.position(0):npos;
 
     val limits = trim(limits_pos != npos ? query.substr(limits_pos + 7) : "");
     var offset = 0, limit = 0;
@@ -131,12 +138,11 @@ Vector<Vector<String>> process_query(const Vector<Vector<String>> &input,
 }
 
 void verify_query(const String &query) {
-    val pattern = "(SELECT|select)\\s+((([\\w][\\w\\d]+)(\\s+(AS|as)\\s+([\\w][\\w\\d]+))?)|\\*)"
-                  "(\\s*,\\s*((([\\w][\\w\\d]+)(\\s+(AS|as)\\s+([\\w][\\w\\d]+))?)|\\*))*"
-                  "(\\s+(WHERE|where)\\s+([\\w][\\w\\d]+)(\\s+(NOT|not))?\\s+((LIKE|like)\\s+[\\w\\d\\%\\_]+|(REG|reg)\\s+.+))?"
-                  "(\\s+(ORDER|order)\\s+(BY|by)\\s+([\\w][\\w\\d]+)(\\s*,\\s*[\\w][\\w\\d]+)*(\\s+(ASC|asc|DESC|desc))?)?"
-                  "(\\s+(LIMIT|limit)\\s+(\\d+)(\\s*,\\s*\\d+)?)?";
-    Regex reg(pattern);
+    val reg = Regex("(SELECT|select)\\s+((([\\w][\\w\\d]+)(\\s+(AS|as)\\s+([\\w][\\w\\d]+))?)|\\*)"
+                    "(\\s*,\\s*((([\\w][\\w\\d]+)(\\s+(AS|as)\\s+([\\w][\\w\\d]+))?)|\\*))*"
+                    "(\\s+(WHERE|where)\\s+([\\w][\\w\\d]+)(\\s+(NOT|not))?\\s+((LIKE|like)\\s+[\\w\\d\\%\\_]+|(REG|reg)\\s+.+))?"
+                    "(\\s+(ORDER|order)\\s+(BY|by)\\s+([\\w][\\w\\d]+)(\\s*,\\s*[\\w][\\w\\d]+)*(\\s+(ASC|asc|DESC|desc))?)?"
+                    "(\\s+(LIMIT|limit)\\s+(\\d+)(\\s*,\\s*\\d+)?)?");
     if (!std::regex_match(trim(query), reg)) {
         show_error("Unrecognized query statement: '" + query + "'");
     }

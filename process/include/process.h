@@ -11,6 +11,7 @@
 #include <sstream>
 #include "getopt_util.h"
 
+void verify_query(const String &query);
 Vector<String> handle_title(const Vector<String>& title, const String& select);
 Vector<String> exec_select(const Vector<String>& title, const Vector<String>& row,
                                      const String& select);
