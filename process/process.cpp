@@ -130,6 +130,18 @@ Vector<Vector<String>> process_query(const Vector<Vector<String>> &input,
     return output;
 }
 
+void verify_query(const String &query) {
+    val pattern = "(SELECT|select)\\s+((([\\w][\\w\\d]+)(\\s+(AS|as)\\s+([\\w][\\w\\d]+))?)|\\*)"
+                  "(\\s*,\\s*((([\\w][\\w\\d]+)(\\s+(AS|as)\\s+([\\w][\\w\\d]+))?)|\\*))*"
+                  "(\\s+(WHERE|where)\\s+([\\w][\\w\\d]+)(\\s+(NOT|not))?\\s+((LIKE|like)\\s+[\\w\\d\\%\\_]+|(REG|reg)\\s+.+))?"
+                  "(\\s+(ORDER|order)\\s+(BY|by)\\s+([\\w][\\w\\d]+)(\\s*,\\s*[\\w][\\w\\d]+)*(\\s+(ASC|asc|DESC|desc))?)?"
+                  "(\\s+(LIMIT|limit)\\s+(\\d+)(\\s*,\\s*\\d+)?)?";
+    Regex reg(pattern);
+    if (!std::regex_match(trim(query), reg)) {
+        show_error("Unrecognized query statement: '" + query + "'");
+    }
+}
+
 Vector<Vector<String>> process_data(const ProgramOptions &options) {
     String data;
 
@@ -159,6 +171,7 @@ Vector<Vector<String>> process_data(const ProgramOptions &options) {
     val queries = split_string(options.query, '|');
 
     for (val &query: queries) {
+        verify_query(query);
         output = process_query(output, query);
     }
 
