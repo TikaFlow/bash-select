@@ -11,6 +11,8 @@
 #include <sstream>
 #include "getopt_util.h"
 
+Vector<std::pair<int, bool>> check_orders(const Vector<String> &data, const Vector<String> &orders);
+void sort_data(Vector<Vector<String>> &data, const String &order);
 void verify_query(const String &query);
 Vector<String> handle_title(const Vector<String>& title, const String& select);
 Vector<String> exec_select(const Vector<String>& title, const Vector<String>& row,

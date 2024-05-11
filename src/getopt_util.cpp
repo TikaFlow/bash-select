@@ -113,7 +113,7 @@ ProgramOptions parseCommandLine(int argc, char *argv[]) {
 
     // 如果不是显示帮助信息和版本信息，则检查必选参数
     if (options.query.empty()) {
-        argError("Query is required.");
+        // argError("Query is required.");
     }
 
     return options;

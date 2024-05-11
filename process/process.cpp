@@ -124,6 +124,50 @@ Vector<String> handle_title(const Vector<String> &title, const String &select) {
     return new_title;
 }
 
+Vector<std::pair<int, bool>> check_orders(const Vector<String> &data, const Vector<String> &orders) {
+    Vector<std::pair<int, bool>> sort_order;
+    for (val &order: orders) {
+        val cols = split_string_by_spaces(trim(order));
+        if (cols.size() > 2) {
+            show_error("Syntax error near '" + order + "'.");
+        }
+        val &col = cols[0];
+        val idx = std::distance(data.begin(), std::find(data.begin(), data.end(), col));
+        if (idx >= data.size()) {
+            show_error("Column '" + col + "' not found.");
+        }
+
+        val direction = cols.size() == 2 ? cols[1] : "";
+        val asc = direction.empty() || direction == "ASC" || direction == "asc";
+
+        sort_order.emplace_back(idx, asc);
+    }
+
+    return sort_order;
+}
+
+void sort_data(Vector<Vector<String>> &data, const String &order) {
+    if (order.empty()) {
+        return;
+    }
+    val orders = split_string(order, ',');
+    val sort_order = check_orders(data[0], orders);
+
+    std::sort(data.begin() + 1, data.end(),
+              [&sort_order](const Vector<String> &a, const Vector<String> &b) -> bool {
+                  var res = false;
+                  for (val &order: sort_order) {
+                      val o = a[order.first].compare(b[order.first]);
+                      if (o == 0) {
+                          continue;
+                      }
+                      res = o > 0;
+                      return order.second ^ res;
+                  }
+                  return false;
+              });
+}
+
 Vector<Vector<String>> process_query(const Vector<Vector<String>> &input,
                                      const String &query) {
 
@@ -171,7 +215,7 @@ Vector<Vector<String>> process_query(const Vector<Vector<String>> &input,
         }
     }
     // 3. order by
-    // TODO
+    sort_data(output, order);
     // 4. limit
     if (limit > 0) {
         // offset
@@ -193,7 +237,7 @@ Vector<Vector<String>> process_query(const Vector<Vector<String>> &input,
 
 void verify_query(const String &query) {
     val reg = Regex(
-            R"((SELECT|select)\s+((([\w_][\w_\d]+)(\s+(AS|as)\s+([\w_][\w_\d]+))?)|\*)(\s*,\s*((([\w_][\w_\d]+)(\s+(AS|as)\s+([\w_][\w_\d]+))?)|\*))*(\s+(WHERE|where)\s+([\w_][\w_\d]+)(\s+(NOT|not))?\s+((LIKE|like)\s+((\\)?[%_]|[\d\w_])+|(REG|reg)\s+.+))?(\s+(ORDER|order)\s+(BY|by)\s+([\w_][\w_\d]+)(\s*,\s*[\w_][\w_\d]+)*(\s+(ASC|asc|DESC|desc))?)?(\s+(LIMIT|limit)\s+(\d+)(\s*,\s*\d+)?)?)");
+            R"((SELECT|select)\s+((([\w_][\w_\d]+)(\s+(AS|as)\s+([\w_][\w_\d]+))?)|\*)(\s*,\s*((([\w_][\w_\d]+)(\s+(AS|as)\s+([\w_][\w_\d]+))?)|\*))*(\s+(WHERE|where)\s+([\w_][\w_\d]+)(\s+(NOT|not))?\s+((LIKE|like)\s+((\\)?[%_]|[\d\w_])+|(REG|reg)\s+.+))?(\s+(ORDER|order)\s+(BY|by)\s+([\w_][\w_\d]+)(\s+(ASC|asc|DESC|desc))?(\s*,\s*([\w_][\w_\d]+)(\s+(ASC|asc|DESC|desc))?)*)?(\s+(LIMIT|limit)\s+(\d+)(\s*,\s*\d+)?)?)");
     if (!std::regex_match(trim(query), reg)) {
         show_error("Unrecognized query statement: '" + query + "'");
     }
@@ -224,12 +268,14 @@ Vector<Vector<String>> process_data(const ProgramOptions &options) {
     Vector<Vector<String>> output;
     output.push_back(col_names);
     prepare_data(data, output, options.delimiter);
-    // Split the query into multiple queries
-    val queries = split_string(options.query, '|');
+    if (!trim(options.query).empty()) {
+        // Split the query into multiple queries
+        val queries = split_string(options.query, '|');
 
-    for (val &query: queries) {
-        verify_query(query);
-        output = process_query(output, query);
+        for (val &query: queries) {
+            verify_query(query);
+            output = process_query(output, query);
+        }
     }
 
     return output;
