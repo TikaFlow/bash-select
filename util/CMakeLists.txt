@@ -1,8 +1,8 @@
 # This file is used to build the util library.
-set(LIB_NAME util)
+set(LIB_UTIL util)
 # get all source files
-file(GLOB SRCS ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR} SRCS)
 # create library
-add_library(${LIB_NAME} STATIC)
-target_sources(${LIB_NAME} PRIVATE ${SRCS})
-target_include_directories(${LIB_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+add_library(${LIB_UTIL} STATIC)
+target_sources(${LIB_UTIL} PRIVATE ${SRCS})
+target_include_directories(${LIB_UTIL} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

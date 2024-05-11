@@ -1,28 +1,38 @@
-# cmake版本限制
+# cmake version check
 cmake_minimum_required(VERSION 3.15)
 
+# check if the current directory is 'bash-sql/build'
+#if(NOT ${CMAKE_CURRENT_SOURCE_DIR} MATCHES "bash-sql/build$")
+#    message(FATAL_ERROR "Please run CMake from a directory named 'bash-sql/build'.")
+#endif()
+
+# cmake info
 message(STATUS ">> CMake version: ${CMAKE_VERSION}")
 message(STATUS ">> CMake generator: ${CMAKE_GENERATOR}")
 
-# 项目语言
+# language settings
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# 项目信息
+# project info
 project(bash-sql LANGUAGES CXX VERSION 0.1.0 DESCRIPTION "Using SQL-like languages to process lightweight data in bash."
         HOMEPAGE_URL "https://github.com/TikaFlow/bash-sql")
 
-# 头文件搜索路径
+# header files
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-# 子目录
+# subdirectories
 add_subdirectory(util)
 add_subdirectory(process)
 
 set(EXE_NAME sql)
 # get all source files
-file(GLOB SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+aux_source_directory(${CMAKE_CURRENT_SOURCE_DIR}/src SRCS)
 # add executable target
 add_executable(${EXE_NAME} ${SRCS})
 target_link_libraries(${EXE_NAME} util process)
+
+# install
+install(TARGETS ${EXE_NAME} DESTINATION bin)
+install(TARGETS util process DESTINATION lib)
