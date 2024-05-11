@@ -2,9 +2,9 @@
 cmake_minimum_required(VERSION 3.15)
 
 # check if the current directory is 'bash-sql/build'
-#if(NOT ${CMAKE_CURRENT_SOURCE_DIR} MATCHES "bash-sql/build$")
-#    message(FATAL_ERROR "Please run CMake from a directory named 'bash-sql/build'.")
-#endif()
+if(NOT ${CMAKE_CURRENT_SOURCE_DIR} MATCHES "bash-sql/build$")
+    message(FATAL_ERROR "Please run CMake from a directory named 'bash-sql/build'.")
+endif()
 
 # cmake info
 message(STATUS ">> CMake version: ${CMAKE_VERSION}")
