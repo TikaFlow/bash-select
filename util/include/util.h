@@ -7,6 +7,7 @@
 
 #include <string>
 #include <iostream>
+#include <algorithm>
 #include "global.h"
 
 namespace util {
@@ -20,7 +21,11 @@ namespace util {
 
     Vector<String> split_string_by_spaces(const String &input);
 
+    String &replaceAll(String &str, const String &src, const String &dst);
+
     void show_error(const String &msg);
+
+    void show_warn(const String &msg);
 }
 
 using namespace util;

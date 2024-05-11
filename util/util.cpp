@@ -53,4 +53,21 @@ namespace util {
         cerr << "ERROR: " << msg << endl;
         exit(1);
     }
+
+    void show_warn(const String &msg) {
+        cout << "WARNING: " << msg << endl;
+    }
+
+    String &replaceAll(String &str, const String &src, const String &dst) {
+        String::size_type pos;
+        while (true) {
+            if ((pos = str.find(src)) != npos) {
+                str.replace(pos, src.length(), dst);
+            } else {
+                break;
+            }
+        }
+        return str;
+    }
+
 }

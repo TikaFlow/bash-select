@@ -37,13 +37,15 @@ Vector<String> exec_select(const Vector<String> &title, const Vector<String> &ro
 
     val cols = split_string(select, ',');
     for (val &col: cols) {
-        if (col == "*") {
-            for (val &col1: row) {
-                new_row.push_back(col1);
-            }
+        if (trim(col) == "*") {
+            new_row.insert(new_row.end(), row.begin(), row.end());
             continue;
         }
-        val pos = col.rfind(" as ");
+
+        val reg = Regex(R"(\s+(AS|as)\s+)");
+        std::smatch match;
+        using std::regex_search;
+        val pos = regex_search(col, match, reg) ? match.position(0) : npos;
         val old_col = pos == npos ? trim(col) : trim(col.substr(0, pos));
         val idx = std::find(title.begin(), title.end(), old_col);
         val new_col = row[std::distance(title.begin(), idx)];
@@ -53,11 +55,40 @@ Vector<String> exec_select(const Vector<String> &title, const Vector<String> &ro
 }
 
 bool exec_where(const Vector<String> &title, const Vector<String> &row, const String &where) {
-    // TODO
-    if(where.empty()){
+    if (where.empty()) {
         return true;
     }
-    return true;
+
+    val clauses = split_string_by_spaces(where);
+    if (clauses.size() < 3) {
+        show_error("Unknown error.");
+    }
+    val &col = clauses[0];
+    val col_at = std::distance(title.begin(), std::find(title.begin(), title.end(), col));
+    if (col_at >= title.size()) {
+        show_error("Column '" + col + "' not found.");
+    }
+    val &col_value = row[col_at];
+    val NOT = clauses.size() == 4;
+    val &type = clauses[clauses.size() - 2];
+    var pattern_str = clauses[clauses.size() - 1];
+
+    if (type == "LIKE" || type == "like") {
+        replaceAll(pattern_str, "\\%", "@");
+        replaceAll(pattern_str, "%", ".*");
+        replaceAll(pattern_str, "@", "%");
+
+        replaceAll(pattern_str, "\\_", "@");
+        replaceAll(pattern_str, "_", ".");
+        replaceAll(pattern_str, "@", "_");
+    } else if (type == "REG" && type == "reg") {
+        show_error("Unknown error.");
+    }
+
+    Regex reg = Regex(pattern_str);
+    val res = std::regex_match(col_value, reg);
+
+    return NOT ^ res;
 }
 
 Vector<String> handle_title(const Vector<String> &title, const String &select) {
@@ -65,26 +96,27 @@ Vector<String> handle_title(const Vector<String> &title, const String &select) {
 
     val cols = split_string(select, ',');
     for (val &col: cols) {
-        if (col == "*") {
-            for (val &col1: title) {
-                new_title.push_back(col1);
-            }
+        if (trim(col) == "*") {
+            new_title.insert(new_title.end(), title.begin(), title.end());
             continue;
         }
-        val pos = col.rfind(" as ");
+        val reg = Regex(R"(\s+(AS|as)\s+)");
+        std::smatch match;
+        using std::regex_search;
+        val pos = regex_search(col, match, reg) ? match.position(0) : npos;
         if (pos != npos && pos >= col.size() - 4) {
-            show_error("Syntax error near '" + col + "'");
+            show_error("Syntax error near '" + col + "'.");
         }
         val old_col = pos == npos ? trim(col) : trim(col.substr(0, pos));
         val idx = std::find(title.begin(), title.end(), old_col);
         if (idx == title.end()) {
             show_error("Column '" + old_col + "' not found");
         }
-        val alias = pos == npos ? "" : trim(col.substr(pos + 4));
+        val alias = pos == npos ? "" : trim(col.substr(pos + match.str().size()));
         val new_col = alias.empty() ? old_col : alias;
 
         for_each(new_title.begin(), new_title.end(), [&new_col](const String &s) {
-            if (new_col == s) show_error("Duplicate column name '" + new_col + "'");
+            if (new_col == s) show_error("Duplicate column name '" + new_col + "'.");
         });
 
         new_title.push_back(new_col);
@@ -94,55 +126,74 @@ Vector<String> handle_title(const Vector<String> &title, const String &select) {
 
 Vector<Vector<String>> process_query(const Vector<Vector<String>> &input,
                                      const String &query) {
-    val where_reg = Regex(" (WHERE|where) ");
-    val order_reg = Regex(" (ORDER|order) (BY|by) ");
-    val limit_reg = Regex(" (LIMIT|limit) ");
+
+    // cut query
     std::smatch match;
     using std::regex_search;
-    val where_pos = regex_search(query, match, where_reg)?match.position(0):npos;
-    val order_pos = regex_search(query, match, order_reg)?match.position(0):npos;
-    val limits_pos = regex_search(query, match, limit_reg)?match.position(0):npos;
+    val limit_reg = Regex(R"(\s+(LIMIT|limit)\s+)");
+    val order_reg = Regex(R"(\s+(ORDER|order)\s+(BY|by)\s+)");
+    val where_reg = Regex(R"(\s+(WHERE|where)\s+)");
 
-    val limits = trim(limits_pos != npos ? query.substr(limits_pos + 7) : "");
+    var test = regex_search(query, match, limit_reg);
+    val limits_pos = test ? match.position(0) : npos;
+    val limits = trim(limits_pos != npos ? query.substr(limits_pos + match.str(0).size()) : "");
     var offset = 0, limit = 0;
     if (!limits.empty()) {
         val offset_pos = limits.find(',');
         offset = offset_pos != npos ? stoi(trim(limits.substr(0, offset_pos))) : 0;
         limit = stoi(trim(offset_pos != npos ? limits.substr(offset_pos + 1) : limits));
+
+        // when specify limits, limit cannot be zero
+        if (!limit) {
+            show_warn("Zero limits will be ignored...");
+        }
     }
     var rest = query.substr(0, limits_pos);
 
-    val order = trim(order_pos != npos ? rest.substr(order_pos + 10) : "");
+    val order_pos = regex_search(query, match, order_reg) ? match.position(0) : npos;
+    val order = trim(order_pos != npos ? rest.substr(order_pos + match.str(0).size()) : "");
     rest = rest.substr(0, order_pos);
 
-    val where = trim(where_pos != npos ? rest.substr(where_pos + 7) : "");
+    val where_pos = regex_search(query, match, where_reg) ? match.position(0) : npos;
+    val where = trim(where_pos != npos ? rest.substr(where_pos + match.str(0).size()) : "");
     val select = trim(rest.substr(0, where_pos).substr(7));
+    // cut query end
 
     Vector<Vector<String>> output;
     val new_title = handle_title(input[0], select);
     output.push_back(new_title);
-    for (var i = 1 + offset; i < input.size(); i++) {
-        // 1. where 2. select
+    for (var i = 1; i < input.size(); i++) {
+        // 1. where
         if (exec_where(input[0], input[i], where)) {
+            // 2. select
             var new_row = exec_select(input[0], input[i], select);
             output.push_back(new_row);
-            // limit if no considered order by
-            if (limit > 0 && output.size() >= limit + 1) {
-                break;
-            }
         }
     }
-    // 3. order by 4. limit
+    // 3. order by
+    // TODO
+    // 4. limit
+    if (limit > 0) {
+        // offset
+        if (offset > 0) {
+            if (offset < output.size()) {
+                output.erase(output.begin() + 1, output.begin() + offset + 1);
+            } else {
+                output.clear();
+            }
+        }
+        // limit
+        if (limit + 1 < output.size()) {
+            output.resize(limit + 1);
+        }
+    }
 
     return output;
 }
 
 void verify_query(const String &query) {
-    val reg = Regex("(SELECT|select)\\s+((([\\w][\\w\\d]+)(\\s+(AS|as)\\s+([\\w][\\w\\d]+))?)|\\*)"
-                    "(\\s*,\\s*((([\\w][\\w\\d]+)(\\s+(AS|as)\\s+([\\w][\\w\\d]+))?)|\\*))*"
-                    "(\\s+(WHERE|where)\\s+([\\w][\\w\\d]+)(\\s+(NOT|not))?\\s+((LIKE|like)\\s+[\\w\\d\\%\\_]+|(REG|reg)\\s+.+))?"
-                    "(\\s+(ORDER|order)\\s+(BY|by)\\s+([\\w][\\w\\d]+)(\\s*,\\s*[\\w][\\w\\d]+)*(\\s+(ASC|asc|DESC|desc))?)?"
-                    "(\\s+(LIMIT|limit)\\s+(\\d+)(\\s*,\\s*\\d+)?)?");
+    val reg = Regex(
+            R"((SELECT|select)\s+((([\w_][\w_\d]+)(\s+(AS|as)\s+([\w_][\w_\d]+))?)|\*)(\s*,\s*((([\w_][\w_\d]+)(\s+(AS|as)\s+([\w_][\w_\d]+))?)|\*))*(\s+(WHERE|where)\s+([\w_][\w_\d]+)(\s+(NOT|not))?\s+((LIKE|like)\s+((\\)?[%_]|[\d\w_])+|(REG|reg)\s+.+))?(\s+(ORDER|order)\s+(BY|by)\s+([\w_][\w_\d]+)(\s*,\s*[\w_][\w_\d]+)*(\s+(ASC|asc|DESC|desc))?)?(\s+(LIMIT|limit)\s+(\d+)(\s*,\s*\d+)?)?)");
     if (!std::regex_match(trim(query), reg)) {
         show_error("Unrecognized query statement: '" + query + "'");
     }
