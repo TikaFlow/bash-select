@@ -8,6 +8,7 @@ Using SQL-like languages to process lightweight data in bash.
 
 ## 环境需求
 
+- cmake
 - make
 - g++
 
@@ -22,13 +23,7 @@ mkdir build && cd build
 
 ## #3. generate Makefile
 
-> Use the configure script **OR** the cmake command.
-
 ```bash
-# 使用configure
-../configure --prefix=/you/custom/prefix
-
-# 使用cmake
 cmake -DCMAKE_INSTALL_PREFIX=/your/custom/prefix ..
 ```
 
@@ -46,4 +41,4 @@ make install
 $ ll | sql -tlc9 "select col3 as user, col5 as size, col9 as filename"
 ```
 
-> Please refer to the [documentation](docs) for detailed usage.
+> Please refer to the [documentation](docs/README.md) for detailed usage.

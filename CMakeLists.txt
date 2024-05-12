@@ -1,11 +1,6 @@
 # cmake version check
 cmake_minimum_required(VERSION 3.15)
 
-# check if the current directory is 'bash-sql/build'
-if(NOT ${CMAKE_CURRENT_SOURCE_DIR} MATCHES "bash-sql/build$")
-    message(FATAL_ERROR "Please run CMake from a directory named 'bash-sql/build'.")
-endif()
-
 # cmake info
 message(STATUS ">> CMake version: ${CMAKE_VERSION}")
 message(STATUS ">> CMake generator: ${CMAKE_GENERATOR}")
@@ -16,7 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # project info
-project(bash-sql LANGUAGES CXX VERSION 0.1.0 DESCRIPTION "Using SQL-like languages to process lightweight data in bash."
+project(bash-sql LANGUAGES CXX VERSION 1.0.0 DESCRIPTION "Using SQL-like languages to process lightweight data in bash."
         HOMEPAGE_URL "https://github.com/TikaFlow/bash-sql")
 
 # header files
@@ -35,4 +30,3 @@ target_link_libraries(${EXE_NAME} util process)
 
 # install
 install(TARGETS ${EXE_NAME} DESTINATION bin)
-install(TARGETS util process DESTINATION lib)

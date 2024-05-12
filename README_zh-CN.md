@@ -6,6 +6,7 @@
 
 ## 环境需求
 
+- cmake
 - make
 - g++
 
@@ -20,13 +21,7 @@ mkdir build && cd build
 
 ## #3. 生成Makefile
 
-> 使用configure脚本**或**使用cmake命令
-
 ```bash
-# 使用configure
-../configure --prefix=/you/custom/prefix
-
-# 使用cmake
 cmake -DCMAKE_INSTALL_PREFIX=/your/custom/prefix ..
 ```
 
@@ -44,4 +39,4 @@ make install
 $ ll | sql -tlc9 "select col3 as user, col5 as size, col9 as filename"
 ```
 
-> 详细用法请参考[文档](docs)。
+> 详细用法请参考[文档](docs/README_zh-CN.md)。

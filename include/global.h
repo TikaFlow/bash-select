@@ -11,6 +11,10 @@
 #include <regex>
 #include <iomanip>
 
+// version and copyright
+#define VERSION "1.0.0"
+#define AUTHOR "Tika Flow"
+
 // keyword
 #define var auto
 #define val const auto

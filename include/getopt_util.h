@@ -23,7 +23,8 @@ struct ProgramOptions {
     String query;
 };
 
-// 解析命令行参数
+void show_version();
+void argError(const String &error);
 ProgramOptions parseCommandLine(int argc, char* argv[]);
 
 
