@@ -6,7 +6,7 @@ Using SQL-like languages to process lightweight data in bash.
 
 # Installation
 
-## 环境需求
+## Requirements
 
 - cmake
 - make
@@ -14,7 +14,7 @@ Using SQL-like languages to process lightweight data in bash.
 
 ## #1. download the source code by `git clone` or any way you like
 
-## #2. enter the extracted directory and create and enter the `build` directory
+## #2. enter repo directory, create and enter the `build` directory
 
 ```bash
 cd bash-sql
