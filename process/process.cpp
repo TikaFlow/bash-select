@@ -19,12 +19,12 @@ void prepare_data(const String &data, Vector<Vector<String>> &output, const char
     }
 }
 
-int get_col_count(const ProgramOptions &options, const String &data) {
+int get_col_count(const ProgramOptions &options) {
     if (options.columns > 0) {
         return options.columns;
     }
 
-    val first_line = split_string(data, '\n')[0];
+    val first_line = split_string(options.data, '\n')[0];
     val col_count = options.delimiter == 0
                     ? split_string_by_spaces(first_line).size()
                     : split_string(first_line, options.delimiter).size();
@@ -81,7 +81,7 @@ bool exec_where(const Vector<String> &title, const Vector<String> &row, const St
         replaceAll(pattern_str, "\\_", "@");
         replaceAll(pattern_str, "_", ".");
         replaceAll(pattern_str, "@", "_");
-    } else if (type == "REG" && type == "reg") {
+    } else if (type != "REG" && type != "reg") {
         show_error("Unknown error.");
     }
 
@@ -244,21 +244,8 @@ void verify_query(const String &query) {
 }
 
 Vector<Vector<String>> process_data(const ProgramOptions &options) {
-    String data;
-
-    // get data string
-    if (!options.data.empty())
-        data = options.data;
-    else if (!options.file.empty())
-        data = readFileString(options.file);
-
-    if (data.empty()) {
-        // If input is empty, show error and exit
-        show_error("No input data provided.");
-    }
-
     // init column names
-    val col_count = get_col_count(options, data);
+    val col_count = get_col_count(options);
     Vector<String> col_names(col_count);
     for (var i = 0; i < col_count; i++) {
         col_names[i] = "col" + to_string(i + 1);
@@ -267,7 +254,7 @@ Vector<Vector<String>> process_data(const ProgramOptions &options) {
     // prepare data to be processed
     Vector<Vector<String>> output;
     output.push_back(col_names);
-    prepare_data(data, output, options.delimiter);
+    prepare_data(options.data, output, options.delimiter);
     if (!trim(options.query).empty()) {
         // Split the query into multiple queries
         val queries = split_string(options.query, '|');
@@ -279,14 +266,4 @@ Vector<Vector<String>> process_data(const ProgramOptions &options) {
     }
 
     return output;
-}
-
-String readFileString(const String &filename) {
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        show_error("Unable to open file: " + filename);
-    }
-
-    String content{(std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>()};
-    return trim(content);
 }

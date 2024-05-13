@@ -7,6 +7,8 @@
 
 #include <string>
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <algorithm>
 #include "global.h"
 
@@ -26,6 +28,8 @@ namespace util {
     void show_error(const String &msg);
 
     void show_warn(const String &msg);
+
+    String readFileString(const String& filename);
 }
 
 using namespace util;

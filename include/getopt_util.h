@@ -12,7 +12,7 @@
 #include <getopt.h>
 #include "util.h"
 
-// 定义参数结构体
+// declare struct
 struct ProgramOptions {
     bool title;
     bool line_no;

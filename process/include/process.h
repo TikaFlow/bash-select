@@ -7,8 +7,6 @@
 
 #include <iostream>
 #include <string>
-#include <fstream>
-#include <sstream>
 #include "getopt_util.h"
 
 Vector<std::pair<int, bool>> check_orders(const Vector<String> &data, const Vector<String> &orders);
@@ -20,9 +18,8 @@ Vector<String> exec_select(const Vector<String>& title, const Vector<String>& ro
 bool exec_where(const Vector<String>& title, const Vector<String>& row, const String& where);
 Vector<Vector<String>> process_query(const Vector<Vector<String>>& input,
                                                     const String& query);
-int get_col_count(const ProgramOptions& options, const String& data);
+int get_col_count(const ProgramOptions& options);
 void prepare_data(const String& data, Vector<Vector<String>>& output, char d);
 Vector<Vector<String>> process_data(const ProgramOptions& options);
-String readFileString(const String& filename);
 
 #endif //BASH_SQL_PROCESS_H

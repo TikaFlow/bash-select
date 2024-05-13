@@ -70,4 +70,13 @@ namespace util {
         return str;
     }
 
+    String readFileString(const String &filename) {
+        std::ifstream file(filename);
+        if (!file.is_open()) {
+            show_error("Unable to open file: " + filename);
+        }
+
+        String content{(std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>()};
+        return trim(content);
+    }
 }
